@@ -42,11 +42,41 @@ df <- df %>%
   filter(YEAR == 2022)
 
 df <- df %>% 
-  rename(`Median Income` = X2022.x)
+  rename(`Median Household Income` = X2022.x)
 df <- df %>% 
   rename(`Bachelor's degree percentage` = X2022.y)
 
-df
+population <- read.csv("INFO 478/NST-EST2022-POPCHG2020_2022.csv")
 
+population <- subset(population, select = -c(`SUMLEV`,
+                                             `REGION`,
+                                             `DIVISION`,
+                                             `STATE`,
+                                             `ESTIMATESBASE2020`,
+                                             `POPESTIMATE2020`,
+                                             `POPESTIMATE2021`,
+                                             `NPOPCHG_2020`,
+                                             `NPOPCHG_2021`,
+                                             `NPOPCHG_2022`,
+                                             `PPOPCHG_2020`,
+                                             `PPOPCHG_2021`,
+                                             `PPOPCHG_2022`,
+                                             `NRANK_ESTBASE2020`,
+                                             `NRANK_POPEST2020`,
+                                             `NRANK_POPEST2021`,
+                                             `NRANK_POPEST2022`,
+                                             `NRANK_NPCHG2020`,
+                                             `NRANK_NPCHG2021`,
+                                             `NRANK_NPCHG2022`,
+                                             `NRANK_PPCHG2020`,
+                                             `NRANK_PPCHG2021`,
+                                             `NRANK_PPCHG2022`))
+
+population <- population %>% 
+  rename(STATE = NAME)
+
+df <- merge(df, population, by="STATE")
+
+df
 ```
 
