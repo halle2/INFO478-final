@@ -1,0 +1,52 @@
+---
+title: "Project478"
+author: "Doha Sidahmed"
+date: "2025-03-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+library(tidyverse)
+library(usdata)
+
+alzheimers_mortality_state <- read.csv("INFO 478/alzheimers.csv")
+income_2022 <- read.csv("INFO 478/Median Household Income data - Sheet1.csv")
+education_2022 <- read.csv("INFO 478/Bachelor's Attainment by Percentage - Sheet1.csv")
+
+head(alzheimers_mortality_state,5)
+
+alzheimers_mortality_state$STATE <- abbr2state(alzheimers_mortality_state$STATE)
+
+head(income_2022,5)
+income_2022 <- income_2022 %>% 
+  rename(STATE = Name)
+
+head(education_2022, 5)
+education_2022 <- education_2022 %>% 
+  rename(STATE = Name)
+
+
+df <- merge(alzheimers_mortality_state, income_2022, by="STATE")
+df <- merge(df, education_2022, by="STATE")
+df <- df %>% 
+  filter(YEAR == 2022)
+
+df <- df %>% 
+  rename(`Median Income` = X2022.x)
+df <- df %>% 
+  rename(`Bachelor's degree percentage` = X2022.y)
+
+df
+
+```
+
