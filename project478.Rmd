@@ -77,6 +77,30 @@ population <- population %>%
 
 df <- merge(df, population, by="STATE")
 
-df
-```
+df <- subset(df, select = -c(`URL`))
 
+df$DEATHS= as.numeric(gsub("[,]", "", df$DEATHS))
+
+df$DEATHS <- as.integer(df$DEATHS)
+
+df$`Median Household Income` = as.numeric(gsub("[,]", "", df$`Median Household Income`))
+
+df$`Median Household Income` <- as.integer(df$`Median Household Income`)
+
+df$RATE <- (df$DEATHS / df$POPESTIMATE2022) * 100000
+
+head(df,5)
+
+```
+```{r}
+df %>% 
+  ggplot(aes(x = `Median Household Income`, y = RATE, col = `Bachelor's degree percentage`, label = STATE)) +
+  geom_point() +
+  scale_color_gradient(low = "blue", high="red")+
+  geom_text(size = 3) + 
+  scale_x_continuous(breaks = pretty(df$`Median Household Income`, n=5))+
+  labs(title = "Alzheimer's Mortaliy Rate vs Household Income by State",
+       x = "Median Household Income",
+       y = "Mortality Rate",
+       color = "% of Population With a Bachelor's Degree")
+```
