@@ -20,6 +20,8 @@ library(tidyverse)
 library(usdata)
 
 alzheimers_mortality_state <- read.csv("INFO 478/alzheimers.csv")
+
+alzheimers_mortality_state
 income_2022 <- read.csv("INFO 478/Median Household Income data - Sheet1.csv")
 education_2022 <- read.csv("INFO 478/Bachelor's Attainment by Percentage - Sheet1.csv")
 
@@ -87,11 +89,11 @@ df$`Median Household Income` = as.numeric(gsub("[,]", "", df$`Median Household I
 
 df$`Median Household Income` <- as.integer(df$`Median Household Income`)
 
-df$RATE <- (df$DEATHS / df$POPESTIMATE2022) * 100000
-
-head(df,5)
+df
 
 ```
+
+
 ```{r}
 df %>% 
   ggplot(aes(x = `Median Household Income`, y = RATE, col = `Bachelor's degree percentage`, label = STATE)) +
@@ -103,4 +105,36 @@ df %>%
        x = "Median Household Income",
        y = "Mortality Rate",
        color = "% of Population With a Bachelor's Degree")
+```
+
+```{r}
+
+df$income_level <- cut(df$`Median Household Income`, 
+                       breaks = 2, 
+                       labels = c("Low", "High"))
+tapply(df$`Median Household Income`, df$income_level, range)
+
+df$education_level <- cut(df$`Bachelor's degree percentage`, 
+                       breaks = 2, 
+                       labels = c("Low", "High"))
+
+tapply(df$`Bachelor's degree percentage`, df$education_level, range)
+
+df
+```
+
+```{r}
+t_test_result <- t.test(df$RATE[df$income_level == "Low"], 
+                        df$RATE[df$income_level == "High"], 
+                        alternative = 'greater')
+
+t_test_result
+```
+
+```{r}
+t_test_result <- t.test(df$RATE[df$education_level == "Low"], 
+                        df$RATE[df$education_level == "High"], 
+                        alternative = 'greater')
+
+t_test_result
 ```
