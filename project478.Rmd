@@ -138,3 +138,39 @@ t_test_result <- t.test(df$RATE[df$education_level == "Low"],
 
 t_test_result
 ```
+
+```{r}
+# Income analysis
+df$STATE <- tolower(df$STATE)
+lm_model <- lm(RATE ~ Income, data = df)
+summary(lm_model)
+```
+
+```{r}
+ggplot(df, aes(x= Income, y= RATE, label=STATE)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  labs(title="Income and Mortality",
+       x = "Income",
+       y = "Mortality rate") +
+  scale_x_continuous(labels = comma) + geom_text(size= 1.5, nudge_y=1)
+```
+
+```{r}
+cor.test(df$Income, df$RATE, method = "pearson")
+```
+
+```{r}
+library(ggplot2)
+df$IncomeGroup <- cut(df$Income, 
+                      breaks = quantile(df$Income, probs = seq(0, 1, 0.25), na.rm = TRUE), 
+                      include.lowest = TRUE, 
+                      labels = c("Low", "Lower-Middle", "Upper-Middle", "High"))
+
+ggplot(df, aes(x = IncomeGroup, y = RATE)) +
+  geom_boxplot(fill="lightgreen") +
+  labs(title = "Distribution of Alzheimer’s Mortality Rates by Income Groups",
+       x = "Income Group (by Quartiles)",
+       y = "Mortality Rate") +
+  theme_minimal()
+```
