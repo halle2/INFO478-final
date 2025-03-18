@@ -27,6 +27,8 @@ II. **Datasets**
 
 [FRED Bachelor's by State](https://fred.stlouisfed.org/release/tables?rid=330&eid=391444&od=2022-01-01#) : Bachelor's degree attainment rates by state for 2022.
 
+[CDC Indicators of Anxiety or Depression Data](https://data.cdc.gov/NCHS/Indicators-of-Anxiety-or-Depression-Based-on-Repor/8pt5-q6wp/about_data) : Indicators of anxiety or depression based on reported frequency of symptoms during last 7 days.
+
 The Federal Reserve Economic Data is a database that holds various types of economic data in the United States, such as household income, employment, etc. It is widely used by researchers and policymakers. For our project, we used a dataset they provided that contains the median household income by state in 2022. The contents of this dataset include the name of the state and its median household income, making 50 samples. This data was necessary because it provides us the necessary information to analyze how income levels vary across states and assess their potential relationship with Alzheimer’s mortality rates. This database also provided us with a 50-sample dataset that includes the percentage of adults with a bachelor’s degree or higher by state in 2022. Education level is an important factor in our analysis to examine whether there is a correlation between education level and Alzheimer’s mortality rates
 
 The Centers for Disease Control and Prevention (CDC) provides a dataset containing Alzheimer’s disease mortality by state in 2022. The contents of the dataset include the states, death rate, and number of deaths. This dataset provides the necessary information for understanding the geographic distribution of Alzheimer’s-related deaths across the United States. By using the death rate and the total number of deaths, we can assess which states experience higher or lower mortality burdens due to the disease.
@@ -37,7 +39,7 @@ III. **Methods**
 
 General data cleaning and processing included merging all the different datasets together by state. To ensure consistency, columns had to be renamed, unnecessary columns were omitted, and small details such as wrong value types were fixed. Additionally, a new column was created for education level. Each state was classified as “low” or “high” for education based on whether the percentage of adults with a bachelor’s degree exceeded the median value for the entire dataset. States with a bachelor’s degree percentage above the mean were classified as “high,” while those below the median were classified as “low.” This allowed for a clearer analysis of the relationship between education and mortality rates, making it easier to identify patterns and trends.
 
-To analyze the relationships between education and mortality, the appropriate statistical test would be a linear regression model and a Pearson’s correlation test. The linear regression model will determine whether the percentage of adults with a bachelor’s degree significantly predicts Alzheimer’s mortality rates. This analysis will help assess whether higher education levels are associated with lower or higher mortality rates from Alzheimer’s disease. The Pearson’s correlation test will measure the strength and direction of the linear relationship between the percentage of adults with a bachelor’s degree and Alzheimer’s mortality rates. A negative correlation would suggest that higher educational attainment is linked to lower mortality rates, while a positive correlation would show the opposite. For our research question examining the relationship between income and mortality, we will be conducting a Pearson correlation test and looking at a linear regression model. The Pearson correlation tests whether there is a statistically significant relationship between two variables, and in this case, it measures the strength and direction between median household income and Alzheimer’s mortality rate. The linear regression model estimates how the mortality rate changes based on income, helping us understand if income is a significant predictor of mortality.
+To analyze the relationships between education and mortality, the appropriate statistical tests would be a linear regression model and a Pearson’s correlation test. The linear regression model will determine whether the percentage of adults with a bachelor’s degree significantly predicts Alzheimer’s mortality rates. This analysis will help assess whether higher education levels are associated with lower or higher mortality rates from Alzheimer’s disease. The Pearson’s correlation test will measure the strength and direction of the linear relationship between the percentage of adults with a bachelor’s degree and Alzheimer’s mortality rates. A negative correlation would suggest that higher educational attainment is linked to lower mortality rates, while a positive correlation would show the opposite. For our research question examining the relationship between income and mortality, we will be conducting a Pearson correlation test and looking at a linear regression model. The Pearson correlation tests whether there is a statistically significant relationship between two variables, and in this case, it measures the strength and direction between median household income and Alzheimer’s mortality rate. The linear regression model estimates how the mortality rate changes based on income, helping us understand if income is a significant predictor of mortality.
 
 DEPRESSION METHOD!!
 
@@ -68,7 +70,6 @@ income_2022 <- income_2022 %>%
 education_2022 <- education_2022 %>% 
   rename(STATE = Name)
 
-
 df <- merge(alzheimers_mortality_state, income_2022, by="STATE")
 df <- merge(df, education_2022, by="STATE")
 df <- df %>% 
@@ -81,36 +82,6 @@ df <- df %>%
 ```
 
 ```{r}
-population <- read.csv("data/NST-EST2022-POPCHG2020_2022.csv")
-
-population <- subset(population, select = -c(`SUMLEV`,
-                                             `REGION`,
-                                             `DIVISION`,
-                                             `STATE`,
-                                             `ESTIMATESBASE2020`,
-                                             `POPESTIMATE2020`,
-                                             `POPESTIMATE2021`,
-                                             `NPOPCHG_2020`,
-                                             `NPOPCHG_2021`,
-                                             `NPOPCHG_2022`,
-                                             `PPOPCHG_2020`,
-                                             `PPOPCHG_2021`,
-                                             `PPOPCHG_2022`,
-                                             `NRANK_ESTBASE2020`,
-                                             `NRANK_POPEST2020`,
-                                             `NRANK_POPEST2021`,
-                                             `NRANK_POPEST2022`,
-                                             `NRANK_NPCHG2020`,
-                                             `NRANK_NPCHG2021`,
-                                             `NRANK_NPCHG2022`,
-                                             `NRANK_PPCHG2020`,
-                                             `NRANK_PPCHG2021`,
-                                             `NRANK_PPCHG2022`))
-
-population <- population %>% 
-  rename(STATE = NAME)
-
-df <- merge(df, population, by="STATE")
 depression_2022 <- depression_2022 %>%
   rename(STATE = State)
 
@@ -139,8 +110,7 @@ df %>%
   ggplot(aes(x = `Bachelor's degree percentage`, y=RATE, col = education_level, label = STATE))+
   geom_point() +
   geom_text(size = 3) + 
-  geom_smooth(method = "lm")+
-  # facet_wrap(~education_level) +
+  geom_smooth(method = "lm") +
   labs(title = "Alzheimer's Mortality Rate vs Education Level",
        x = "Percentage of Adults with a Bachelor's Degree or Higher",
        y = "Alzheimer's Mortality Rate",
@@ -158,6 +128,8 @@ print(correlation)
 ```
 
 The result of the linear regression model indicates a statistically significant negative relationship between the percentage of adults with bachelor’s degrees and Alzheimer’s mortality rates in the US. This is because the bachelor’s degree percentage coefficient was -0.6723, suggesting that for every 1% increase in the percentage of adults with a bachelor’s degree, the Alzheimer’s mortality rate may decrease by 0.6723, highlighting that higher education is associated with lower mortality rates. The p-value was 0.000547, showing that the regression model is significant. Pearson’s correlation test resulted in a correlation coefficient of -0.472 and a p-value of 0.000547. This suggests a moderate, negative correlation between Alzheimer’s mortality rate and bachelor’s degree percentage. To visually represent this relationship, a scatterplot was created with the percentage of adults with a bachelor’s degree on the x-axis and the Alzheimer’s mortality rate on the y-axis, with each state labeled. The scatterplot color-codes the states based on their education level. The regression line on the plot shows a downward trend, meaning that as the percentage of people with a bachelor’s degree increases, the Alzheimer’s mortality rate decreases. The visualization allows for an easy comparison of states with different education levels and highlights the negative trend. The regression analysis is supported through the scatterplot.
+
+**Halle Income Analysis**
 
 ```{r}
 df$STATE <- tolower(df$STATE)
