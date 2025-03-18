@@ -24,6 +24,12 @@ alzheimers_mortality_state <- read.csv("INFO 478/alzheimers.csv")
 alzheimers_mortality_state
 income_2022 <- read.csv("INFO 478/Median Household Income data - Sheet1.csv")
 education_2022 <- read.csv("INFO 478/Bachelor's Attainment by Percentage - Sheet1.csv")
+depression_2022 <- read.csv("Indicators_of_Anxiety_or_Depression_Based_on_Reported_Frequency_of_Symptoms_During_Last_7_Days_20250316.csv")
+
+depression_2022 <- depression_2022 %>%
+  group_by(State) %>%
+    summarize(value = mean(Value))
+head(depression_2022, 10)
 
 head(alzheimers_mortality_state,5)
 
@@ -78,6 +84,14 @@ population <- population %>%
   rename(STATE = NAME)
 
 df <- merge(df, population, by="STATE")
+
+depression_2022 <- depression_2022 %>%
+  rename(STATE = State)
+
+depression_2022 <- depression_2022 %>%
+  rename(depression_rate = value)
+
+df <- merge(df, depression_2022, by="STATE")
 
 df <- subset(df, select = -c(`URL`))
 
@@ -173,4 +187,22 @@ ggplot(df, aes(x = IncomeGroup, y = RATE)) +
        x = "Income Group (by Quartiles)",
        y = "Mortality Rate") +
   theme_minimal()
+```
+
+```{r}
+
+result <- cor.test(df$RATE, df$depression_rate)
+result
+
+df %>%
+  ggplot(aes(x = RATE, y = depression_rate)) +
+    geom_point() +
+      geom_smooth(method = 'lm') +
+        labs(title = "Relationship between Alzheimer and Depression",
+             x = "Alzheimer Rate",
+             y = "Depression Rate")
+
+model <- lm(RATE ~ depression_rate, data = df)
+summary(model)
+
 ```
