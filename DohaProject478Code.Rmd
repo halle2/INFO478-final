@@ -1,0 +1,83 @@
+---
+title: "dohaprojectcode"
+author: "Doha Sidahmed"
+date: "2025-03-18"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(usdata)
+
+alzheimers_mortality_state <- read.csv("INFO 478/alzheimers.csv")
+
+income_2022 <- read.csv("INFO 478/Median Household Income data - Sheet1.csv")
+education_2022 <- read.csv("INFO 478/Bachelor's Attainment by Percentage - Sheet1.csv")
+
+alzheimers_mortality_state$STATE <- abbr2state(alzheimers_mortality_state$STATE)
+
+income_2022 <- income_2022 %>% 
+  rename(STATE = Name)
+
+education_2022 <- education_2022 %>% 
+  rename(STATE = Name)
+
+df <- merge(alzheimers_mortality_state, income_2022, by="STATE")
+df <- merge(df, education_2022, by="STATE")
+df <- df %>% 
+  filter(YEAR == 2022)
+
+df <- df %>% 
+  rename(`Median Household Income` = X2022.x)
+df <- df %>% 
+  rename(`Bachelor's degree percentage` = X2022.y)
+
+df <- subset(df, select = -c(`URL`))
+
+df$DEATHS= as.numeric(gsub("[,]", "", df$DEATHS))
+
+df$DEATHS <- as.integer(df$DEATHS)
+
+df$`Median Household Income` = as.numeric(gsub("[,]", "", df$`Median Household Income`))
+
+df$`Median Household Income` <- as.integer(df$`Median Household Income`)
+
+df$income_level <- cut(df$`Median Household Income`, 
+                       breaks = 2, 
+                       labels = c("Low", "High"))
+tapply(df$`Median Household Income`, df$income_level, range)
+
+df$education_level <- cut(df$`Bachelor's degree percentage`, 
+                       breaks = 2, 
+                       labels = c("Low", "High"))
+
+tapply(df$`Bachelor's degree percentage`, df$education_level, range)
+
+df
+
+```
+
+## Education
+```{r}
+df %>% 
+  ggplot(aes(x = `Bachelor's degree percentage`, y=RATE, col = education_level, label = STATE))+
+  geom_point() +
+  geom_text(size = 3) + 
+  geom_smooth(method = "lm")+
+  # facet_wrap(~education_level) +
+  labs(title = "Alzheimer's Mortality Rate vs Education Level",
+       x = "Percentage of Adults with a Bachelor's Degree or Higher",
+       y = "Alzheimer's Mortality Rate",
+       color = "Education Level")
+  
+```
+
+## stat tests
+```{r}
+model <- lm(RATE ~ `Bachelor's degree percentage`, data = df)
+summary(model)
+
+correlation <- cor.test(df$`Bachelor's degree percentage`, df$RATE, method = "pearson")
+print(correlation)
+
+```
